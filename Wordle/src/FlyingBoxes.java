@@ -24,6 +24,9 @@ public class FlyingBoxes extends JPanel implements Runnable
 		window.setColor(Color.BLACK);
 		window.fillRect( 0,0, 800, 600);
 		
+		window.setColor(Color.GREEN);
+		window.fillRect(100,100,100,100);
+		
 		window.setColor(Color.WHITE);
 		
 		window.drawString("Mouse  coordinates " + "(" + MouseInfo.getPointerInfo().getLocation().x + "   " + MouseInfo.getPointerInfo().getLocation().y + ")", 250, 30 );

@@ -11,8 +11,8 @@ public class KeyBoxRunner extends JFrame
 
 		setSize(WIDTH,HEIGHT);
 		
-		getContentPane().add( new KeyBox() ); 
-
+	//	getContentPane().add( new KeyBox() ); 
+		getContentPane().add(new FlyingBoxes());
 
 		setVisible(true);
 	
