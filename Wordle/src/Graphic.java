@@ -12,12 +12,15 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 	private char[][] letters;
 	private String keys_typed;
 	private String key;
+	private int k;
 
 	public Graphic()
 	{
 		key = "NO KEY PRESSED YET";
 
 		keys_typed = "";
+		
+		k = 0;
 		
 		addKeyListener( this ); /*all keyListeners must have this in the constructor*/
 		
@@ -41,7 +44,8 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 		window.fillRect(0, 0, 800, 600);
 		
 		window.setColor(Color.BLACK);
-		window.drawString("Mouse  coordinates " + "(" + MouseInfo.getPointerInfo().getLocation().x + "   " + MouseInfo.getPointerInfo().getLocation().y + ")", 250, 30 );
+		window.drawString("Wordle", 250, 50);
+		//window.drawString("Mouse  coordinates " + "(" + MouseInfo.getPointerInfo().getLocation().x + "   " + MouseInfo.getPointerInfo().getLocation().y + ")", 250, 30 );
 		
 		//make all Boxes show and move
 		for(int x = 250,c=0;x<grid[0].length*45+250;x+=45,c++) {
@@ -58,23 +62,17 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			}
 		}
 		
-	
-		
-		window.setColor(Color.red);		
-		window.drawString( "Please type something!", 250, 100 );
-		
+		if(k==13) {
+			System.out.println("bruh");
+		}
 		if(keys_typed.length()!=0) 
 		{
 			window.setColor(Color.black);
-			window.fillRect(90, 130, keys_typed.length()*7 + 20, 30);
+			window.fillRect(90, 400, keys_typed.length()*7 + 20, 30);
 		}
 			
 		window.setColor(Color.green);
-		window.drawString( keys_typed, 100, 150 );
-		
-		window.setColor(new Color( 100, 0, 100 ));		
-		window.drawString( key, 250, 200 );
-		
+		window.drawString( keys_typed, 100, 420 );
 		
 	}
 	/*KeyListeners must have these 3 methods:
@@ -102,6 +100,7 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			//add another else if to check if another key was pressed..
 			else {
 				key = "Key " + e.getKeyCode() + " is pressed!";
+				k = e.getKeyCode();
 			}
 			repaint();
 		}
