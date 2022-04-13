@@ -11,8 +11,9 @@ public class Runner extends JFrame
 
 		setSize(WIDTH,HEIGHT);
 		
-	//	getContentPane().add( new KeyBox() ); 
+		Input a = new Input();
 		getContentPane().add(new Graphic());
+		//getContentPane().add(a);
 
 		setVisible(true);
 	
