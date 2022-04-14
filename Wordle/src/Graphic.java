@@ -11,13 +11,14 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 	private int[][] grid;	
 	private char[][] letters;
 	private String keys_typed;
-	private String key;
-	private int k;
+	private char[] cur;
+	private String key, word;
+	private int k, index, ycor,currow;
 
-	public Graphic()
+	public Graphic(String w)
 	{
 		key = "NO KEY PRESSED YET";
-
+		word = w;
 		keys_typed = "";
 		
 		k = 0;
@@ -28,7 +29,10 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 		
 		grid = new int[6][5];
 		letters = new char[6][5];
-		letters[0][0] = 'N';
+		cur = new char[5];
+		currow = 0;
+		ycor = 95;
+	//	letters[0][0] = 'N';
 		setBackground(Color.WHITE);
 		System.out.println(Arrays.deepToString(grid));
 		//Use a list to store lots of Boxes 
@@ -62,13 +66,18 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			}
 		}
 		
-		if(k==13) {
-			System.out.println("bruh");
+		
+		for(int x = 250,in=0; x<cur.length*45+250;x+=45,in++) {
+			if(cur[in]!=' ') {
+				window.drawString(Character.toString(cur[in]), x+20, ycor);
+			}
 		}
+		
 		if(keys_typed.length()!=0) 
 		{
 			window.setColor(Color.black);
 			window.fillRect(90, 400, keys_typed.length()*7 + 20, 30);
+			
 		}
 			
 		window.setColor(Color.green);
@@ -84,6 +93,10 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 		public void keyTyped(KeyEvent e)
 		{
 			keys_typed += "" + e.getKeyChar();
+			
+		
+			
+			System.out.println(Arrays.toString(cur));
 			repaint();
 		}
 		
@@ -101,7 +114,41 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			else {
 				key = "Key " + e.getKeyCode() + " is pressed!";
 				k = e.getKeyCode();
+				System.out.println(k);
 			}
+			//put typed characters into array
+			if(e.getKeyCode()==8) {
+				if(index>0) {
+				System.out.println(index);
+				cur[--index]= ' ';
+				}
+			}
+			else if(!(index>=cur.length||e.getKeyCode()==10)) {
+				cur[index++] = e.getKeyChar();
+			}
+			
+			//check if enter key pressed
+			if(e.getKeyCode()==10) {
+				if(index==5) {
+				letters[currow] = cur;
+				for(int x =0;x<cur.length;x++) {
+					if(word.indexOf(Character.toString(cur[x]))==x) {
+						grid[currow][x] = 3;
+					}
+					else if(word.contains(Character.toString(cur[x]))){
+						grid[currow][x] = 2;
+					}
+					else {
+						grid[currow][x] = 1;
+					}
+				}
+				cur = new char[5];
+				currow++;
+				ycor+=45;
+				index = 0;
+				}
+			}
+			
 			repaint();
 		}
 		
@@ -117,6 +164,7 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			//add another else if to check if another key was released..
 			else{
 				key = "Key "+ e.getKeyCode() +" was released!";
+				k = e.getKeyCode();
 			}
 			repaint();
 			

@@ -12,7 +12,7 @@ public class Runner extends JFrame
 		setSize(WIDTH,HEIGHT);
 		
 		Input a = new Input();
-		getContentPane().add(new Graphic());
+		getContentPane().add(new Graphic("trail"));
 		//getContentPane().add(a);
 
 		setVisible(true);
