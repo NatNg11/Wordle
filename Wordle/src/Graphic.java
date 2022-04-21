@@ -3,8 +3,11 @@ import java.awt.Color;
 import javax.swing.*;
 import java.util.*;
 import java.awt.MouseInfo;
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class Graphic extends JPanel implements Runnable, KeyListener
 {
@@ -14,14 +17,24 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 	private char[] cur;
 	private String key, word;
 	private int k, index, ycor,currow;
+	private ArrayList<String> words;
+	private boolean flag, game;
 
-	public Graphic(String w)
+	public Graphic() throws FileNotFoundException
 	{
+		Scanner f = new Scanner(new File("wordlewords.txt"));
+		words = new ArrayList<String>();
+		while(f.hasNext()) {
+			words.add(f.nextLine());
+		}
+		
 		key = "NO KEY PRESSED YET";
-		word = w;
+		word = words.get((int)(Math.random()*words.size()));;
 		keys_typed = "";
 		
 		k = 0;
+		flag = false;
+	
 		
 		addKeyListener( this ); /*all keyListeners must have this in the constructor*/
 		
@@ -73,15 +86,23 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			}
 		}
 		
-		if(keys_typed.length()!=0) 
-		{
-			window.setColor(Color.black);
-			window.fillRect(90, 400, keys_typed.length()*7 + 20, 30);
-			
-		}
-			
+//		if(keys_typed.length()!=0) 
+//		{
+//			window.setColor(Color.black);
+//			window.fillRect(90, 400, keys_typed.length()*7 + 20, 30);
+//			
+//		}
+//			
+//		window.setColor(Color.green);
+//		window.drawString( keys_typed, 100, 420 );
 		window.setColor(Color.green);
-		window.drawString( keys_typed, 100, 420 );
+		window.drawString(word,100,420);
+		
+		if(flag) {
+			window.drawString("Not in word list", 100, 420);
+			flag = false;
+		}
+	
 		
 	}
 	/*KeyListeners must have these 3 methods:
@@ -128,26 +149,36 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			}
 			
 			//check if enter key pressed
-			if(e.getKeyCode()==10) {
+			if(e.getKeyCode()==10&&currow<6) {
 				if(index==5) {
 				letters[currow] = cur;
-				for(int x =0;x<cur.length;x++) {
-					if(word.indexOf(Character.toString(cur[x]))==x) {
-						grid[currow][x] = 3;
+				//check if word is a real word
+				if(words.contains(String.valueOf(cur))) {
+				//check if letters are part of the word
+					for(int x =0;x<cur.length;x++) {
+						if(cur[x]==word.charAt(x)) {
+							grid[currow][x] = 3;
+						}
+						else if(word.contains(Character.toString(cur[x]))){
+							grid[currow][x] = 2;
+						}
+						else {
+							grid[currow][x] = 1;
+						}
 					}
-					else if(word.contains(Character.toString(cur[x]))){
-						grid[currow][x] = 2;
-					}
-					else {
-						grid[currow][x] = 1;
-					}
+					cur = new char[5];
+					currow++;
+					ycor+=45;
+					index = 0;
 				}
-				cur = new char[5];
-				currow++;
-				ycor+=45;
-				index = 0;
+				else if(currow>=6){
+					//"Word not in word list"
+					flag = true;
+					
+				}
 				}
 			}
+			
 			
 			repaint();
 		}
