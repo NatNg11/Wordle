@@ -19,7 +19,7 @@ public class filter {
 				out.println(n);
 			}
 		}
-
+		out.flush();
 		f.close();
 	}
 }

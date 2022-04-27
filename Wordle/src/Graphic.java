@@ -1,8 +1,11 @@
 import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.Font;
+
 import javax.swing.*;
 import java.util.*;
 import java.awt.MouseInfo;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -18,7 +21,9 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 	private String key, word;
 	private int k, index, ycor,currow;
 	private ArrayList<String> words;
-	private boolean flag, game;
+	private boolean flag, game, gameover;
+	private static final int startx = 220;
+	private static final Color[] colors = new Color[]{new Color(182, 184, 182),new Color(182, 184, 182),new Color(233, 229, 70),new Color(14, 214, 68)};
 
 	public Graphic() throws FileNotFoundException
 	{
@@ -33,7 +38,9 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 		keys_typed = "";
 		
 		k = 0;
+		game = false;
 		flag = false;
+		gameover = false;
 	
 		
 		addKeyListener( this ); /*all keyListeners must have this in the constructor*/
@@ -57,32 +64,40 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 
 	public void paint( Graphics window )
 	{
+		window.setFont(new Font("Sans_Serif",Font.BOLD,15));
+		
 		window.setColor(Color.white);
 		window.fillRect(0, 0, 800, 600);
 		
 		window.setColor(Color.BLACK);
-		window.drawString("Wordle", 250, 50);
+		window.drawString("WORDLE", 300, 50);
 		//window.drawString("Mouse  coordinates " + "(" + MouseInfo.getPointerInfo().getLocation().x + "   " + MouseInfo.getPointerInfo().getLocation().y + ")", 250, 30 );
 		
 		//make all Boxes show and move
-		for(int x = 250,c=0;x<grid[0].length*45+250;x+=45,c++) {
+		for(int x = startx,c=0;x<grid[0].length*45+startx;x+=45,c++) {
 			for(int y = 75,r=0;y<grid.length*45+75;y+=45,r++) {
 				switch(grid[r][c]) {
-				case 0: {window.setColor(Color.GRAY); break; }
-				case 1: { window.setColor(Color.BLACK); break; }
-				case 2: { window.setColor(Color.YELLOW); break; }
-				case 3: { window.setColor(Color.GREEN); break; }
+				case 0: {window.setColor(colors[0]); break; }
+				case 1: { window.setColor(colors[1]); break; }
+				case 2: { window.setColor(colors[2]); break; }
+				case 3: { window.setColor(colors[3]); break; }
 				}
-				window.fillRect(x, y, 40, 40);
-				window.setColor(Color.white);
-				window.drawString(Character.toString(letters[r][c]), x+20, y+20);
+				if(grid[r][c]==0) { 
+					window.fillRect(x, y,40, 40);
+					window.setColor(Color.white);
+					window.fillRect(x+2, y+2, 36, 36);
+					window.setColor(Color.black);
+					}
+				else {window.fillRect(x, y, 40, 40);window.setColor(Color.white); }
+				window.drawString(Character.toString(letters[r][c]).toUpperCase(), x+15, y+20);
 			}
 		}
 		
-		
-		for(int x = 250,in=0; x<cur.length*45+250;x+=45,in++) {
-			if(cur[in]!=' ') {
-				window.drawString(Character.toString(cur[in]), x+20, ycor);
+		if(!game) {
+			for(int x = startx,in=0; x<cur.length*45+startx;x+=45,in++) {
+				if(cur[in]!=' ') {
+					window.drawString(Character.toString(cur[in]).toUpperCase(), x+15, ycor);
+				}
 			}
 		}
 		
@@ -95,14 +110,34 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 //			
 //		window.setColor(Color.green);
 //		window.drawString( keys_typed, 100, 420 );
+		if(!(game||gameover)) {
 		window.setColor(Color.green);
 		window.drawString(word,100,420);
+		}
 		
 		if(flag) {
 			window.drawString("Not in word list", 100, 420);
 			flag = false;
 		}
-	
+//		if(game) {
+////			window.setColor(Color.black);
+////			window.fillRect(0,0,800,600);
+//			return;
+//		}
+		if(game) {
+			window.setColor(Color.black);
+			if(currow==1) {
+				window.drawString("You guessed the correct word in " + currow + " guess!", 100, 420);
+			}
+			else {
+			window.drawString("You guessed the correct word in " + currow + " guesses!", 100, 420);
+			}
+			return;
+		}
+		if(gameover) {
+			window.setColor(Color.black);
+			window.drawString("You lost! The correct word was \"" + word+"\"", 100, 420);
+		}
 		
 	}
 	/*KeyListeners must have these 3 methods:
@@ -120,7 +155,7 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			System.out.println(Arrays.toString(cur));
 			repaint();
 		}
-		
+		/////////////////make it so that only letters can be typed
 		/*2*/
 		public void keyPressed(KeyEvent e)
 		{
@@ -149,7 +184,8 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 			}
 			
 			//check if enter key pressed
-			if(e.getKeyCode()==10&&currow<6) {
+			if(e.getKeyCode()==10&&currow<6&&!game&&!gameover) {
+				boolean g = true;
 				if(index==5) {
 				letters[currow] = cur;
 				//check if word is a real word
@@ -161,22 +197,28 @@ public class Graphic extends JPanel implements Runnable, KeyListener
 						}
 						else if(word.contains(Character.toString(cur[x]))){
 							grid[currow][x] = 2;
+							g = false;
 						}
 						else {
 							grid[currow][x] = 1;
+							g = false;
 						}
 					}
 					cur = new char[5];
 					currow++;
 					ycor+=45;
-					index = 0;
+					index = 0;	
+					if(g) {
+						game = true;
+					}
 				}
-				else if(currow>=6){
-					//"Word not in word list"
-					flag = true;
-					
+			
 				}
-				}
+			}
+			if(currow>=6){
+				//"Word not in word list"
+				gameover = true;
+				
 			}
 			
 			
